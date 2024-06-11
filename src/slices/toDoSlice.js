@@ -1,44 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const toDoSlice = createSlice({
-  name: "toDo",
-  initialState: [],
+const chartSlice = createSlice({
+  name: "chartData",
+  initialState: [], // Initial state can be an empty array or an object depending on your data structure
   reducers: {
-    setToDos: (state, action) => {
+    setChartData: (state, action) => {
       return action.payload;
     },
-    addToDo: (state, action) => {
-      state.push(action.payload);
-    },
-    addToDoItem: (state, action) => {
-      const { listId, item } = action.payload;
-      const list = state.find((list) => list._id === listId);
-      if (list) {
-        list.items.push(item);
-      }
-    },
-    deleteToDoItem: (state, action) => {
-      const { listId, itemIndex } = action.payload;
-      const list = state.find((list) => list._id === listId);
-      if (list) {
-        list.items.splice(itemIndex, 1);
-      }
-    },
-    updateToDoItem: (state, action) => {
-      const { listId, itemIndex, newTitle } = action.payload;
-      const list = state.find((list) => list._id === listId);
-      if (list && list.items[itemIndex]) {
-        list.items[itemIndex].title = newTitle;
-      }
-    },
+    // You can add more reducers for updating chart data as needed
   },
 });
 
-export const {
-  setToDos,
-  addToDo,
-  addToDoItem,
-  deleteToDoItem,
-  updateToDoItem,
-} = toDoSlice.actions;
-export default toDoSlice.reducer;
+export const { setChartData } = chartSlice.actions;
+export default chartSlice.reducer;
