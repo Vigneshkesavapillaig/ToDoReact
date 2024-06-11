@@ -1,31 +1,29 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setToDos } from "../slices/toDoSlice";
-import AddList from "../Component/AddList";
-import ListItem from "../Component/LisItem";
-import "../ToDOList.css";
+import AddList from "./AddList";
+import ListItem from "./LisItem";
+import "../ToDoList.css";
 
 const TodoList = () => {
   const dispatch = useDispatch();
   const additionalLists = useSelector((state) => state.toDo);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:5000/api/additionalLists/getAdditionalLists"
-      );
-      dispatch(setToDos(response.data));
-    } catch (error) {
-      console.error("Error fetching additional lists:", error);
-    }
-  }, [dispatch]);
-
   useEffect(() => {
-    fetchData();
-    const intervalId = setInterval(fetchData, 4000);
-    return () => clearInterval(intervalId);
-  }, [fetchData]);
+    const fetchAdditionalLists = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/additionalLists/getAdditionalLists"
+        );
+        dispatch(setToDos(response.data));
+      } catch (error) {
+        console.error("Error fetching additional lists:", error);
+      }
+    };
+
+    fetchAdditionalLists();
+  }, [dispatch]);
 
   return (
     <div className="todo-container">
@@ -33,7 +31,7 @@ const TodoList = () => {
       <AddList />
       <div className="list-container">
         {additionalLists.map((list) => (
-          <ListItem key={list.id} list={list} />
+          <ListItem key={list._id} list={list} />
         ))}
       </div>
     </div>

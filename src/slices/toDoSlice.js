@@ -1,33 +1,33 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = [];
-
 const toDoSlice = createSlice({
   name: "toDo",
-  initialState,
+  initialState: [],
   reducers: {
-    setToDos: (state, action) => action.payload,
+    setToDos: (state, action) => {
+      return action.payload;
+    },
     addToDo: (state, action) => {
       state.push(action.payload);
     },
     addToDoItem: (state, action) => {
       const { listId, item } = action.payload;
-      const list = state.find((list) => list.id === listId);
+      const list = state.find((list) => list._id === listId);
       if (list) {
         list.items.push(item);
       }
     },
     deleteToDoItem: (state, action) => {
       const { listId, itemIndex } = action.payload;
-      const list = state.find((list) => list.id === listId);
+      const list = state.find((list) => list._id === listId);
       if (list) {
         list.items.splice(itemIndex, 1);
       }
     },
     updateToDoItem: (state, action) => {
       const { listId, itemIndex, newTitle } = action.payload;
-      const list = state.find((list) => list.id === listId);
-      if (list) {
+      const list = state.find((list) => list._id === listId);
+      if (list && list.items[itemIndex]) {
         list.items[itemIndex].title = newTitle;
       }
     },
@@ -41,5 +41,4 @@ export const {
   deleteToDoItem,
   updateToDoItem,
 } = toDoSlice.actions;
-
 export default toDoSlice.reducer;

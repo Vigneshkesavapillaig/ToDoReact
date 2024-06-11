@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { InputGroup, FormControl, Button } from "react-bootstrap";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { addToDo, setToDos } from "../slices/toDoSlice";
+import { addToDo } from "../slices/toDoSlice";
 
 const AddList = () => {
   const [newListTitle, setNewListTitle] = useState("");
@@ -25,20 +25,6 @@ const AddList = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/api/additionalLists/getAdditionalLists"
-        );
-        dispatch(setToDos(response.data));
-      } catch (error) {
-        console.error("Error fetching additional lists:", error);
-      }
-    };
-    fetchData();
-  }, [dispatch]);
-
   return (
     <InputGroup className="mb-3">
       <FormControl
@@ -52,4 +38,5 @@ const AddList = () => {
     </InputGroup>
   );
 };
+
 export default AddList;
