@@ -33,7 +33,10 @@ const ListItem = ({ list }) => {
   const handleAddNewListItem = async () => {
     try {
       if (!newItem.trim()) return;
-      const updatedItems = [...list.items, { title: newItem }];
+      const updatedItems = [
+        ...(Array.isArray(list.items) ? list.items : []),
+        { title: newItem },
+      ];
       const response = await axios.put(
         `http://localhost:5000/api/additionalLists/updateAdditionalList/${list.id}`,
         { items: updatedItems }
@@ -48,7 +51,9 @@ const ListItem = ({ list }) => {
 
   const handleDeleteNewListItem = async (itemIndex) => {
     try {
-      const updatedItems = list.items.filter((_, index) => index !== itemIndex);
+      const updatedItems = (Array.isArray(list.items) ? list.items : []).filter(
+        (_, index) => index !== itemIndex
+      );
       const response = await axios.put(
         `http://localhost:5000/api/additionalLists/updateAdditionalList/${list.id}`,
         { items: updatedItems }
@@ -63,8 +68,9 @@ const ListItem = ({ list }) => {
 
   const handleUpdateListItem = async (itemIndex, newTitle) => {
     try {
-      const updatedItems = list.items.map((item, index) =>
-        index === itemIndex ? { ...item, title: newTitle } : item
+      const updatedItems = (Array.isArray(list.items) ? list.items : []).map(
+        (item, index) =>
+          index === itemIndex ? { ...item, title: newTitle } : item
       );
       const response = await axios.put(
         `http://localhost:5000/api/additionalLists/updateAdditionalList/${list.id}`,
@@ -77,6 +83,11 @@ const ListItem = ({ list }) => {
       console.error("Error updating item in list:", error);
     }
   };
+
+  // Log list to verify its structure
+  useEffect(() => {
+    console.log("List received:", list);
+  }, [list]);
 
   return (
     <div className="additional-list">
@@ -92,21 +103,20 @@ const ListItem = ({ list }) => {
         </Button>
       </InputGroup>
       <div className="additional-list-items">
-        {list.items &&
-          list.items.map((item, index) => (
-            <div key={index} className="additional-item">
-              <textarea
-                value={item.title}
-                onChange={(e) => handleUpdateListItem(index, e.target.value)}
+        {(Array.isArray(list.items) ? list.items : []).map((item, index) => (
+          <div key={index} className="additional-item">
+            <textarea
+              value={item.title}
+              onChange={(e) => handleUpdateListItem(index, e.target.value)}
+            />
+            <div className="additional-icons">
+              <BsTrash
+                className="cursor-pointer"
+                onClick={() => handleDeleteNewListItem(index)}
               />
-              <div className="additional-icons">
-                <BsTrash
-                  className="cursor-pointer"
-                  onClick={() => handleDeleteNewListItem(index)}
-                />
-              </div>
             </div>
-          ))}
+          </div>
+        ))}
       </div>
     </div>
   );
