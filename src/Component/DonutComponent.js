@@ -14,10 +14,10 @@ const DonutComponent = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/sales/chartData"
+          "http://localhost:5000/api/sales/carChartData"
         );
         const data = response.data;
-        const categories = data.map((entry) => entry.year);
+        const categories = data.map((entry) => entry.car);
         const seriesData = data.map((entry) => entry.sales);
         setChartData({
           options: {
@@ -35,7 +35,7 @@ const DonutComponent = () => {
 
   return (
     <div className="chart-container">
-      <h1 className="chart-header">Donut Chart</h1>
+      <h1 className="chart-header">Donut Chart - Car Data</h1>
       <div className="chart">
         <Chart
           options={chartData.options}

@@ -7,7 +7,7 @@ const ChartComponent = () => {
     options: {
       chart: {
         id: "basic-bar",
-        height: 300, // Adjust height as needed
+        height: 300,
       },
       xaxis: {
         categories: [],
@@ -27,12 +27,10 @@ const ChartComponent = () => {
         const response = await axios.get(
           "http://localhost:5000/api/sales/chartData"
         );
-        console.log("Response from server:", response.data); // Log the response data
+        console.log("Response from server:", response.data); 
         const data = response.data;
         const categories = data.map((entry) => entry.year);
         const seriesData = data.map((entry) => entry.sales);
-        console.log("Categories:", categories); // Log the categories
-        console.log("Series data:", seriesData); // Log the series data
         setChartData((prevState) => ({
           ...prevState,
           options: {
@@ -59,7 +57,7 @@ const ChartComponent = () => {
 
   return (
     <div className="chart-container">
-      <h1 className="chart-header">Bar Chart</h1>
+      <h1 className="chart-header">Bar Chart - SalesData</h1>
       <div className="chart">
         <Chart
           options={chartData.options}

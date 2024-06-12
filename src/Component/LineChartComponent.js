@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Chart from "react-apexcharts";
 
-const LineChartComponent = () => {
+const ChartComponent = () => {
   const [chartData, setChartData] = useState({
     options: {
       chart: {
-        id: "basic-line",
+        id: "line-bar",
+        height: 300,
       },
       xaxis: {
         categories: [],
@@ -14,7 +15,7 @@ const LineChartComponent = () => {
     },
     series: [
       {
-        name: "Sales",
+        name: "size",
         data: [],
       },
     ],
@@ -24,23 +25,24 @@ const LineChartComponent = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/sales/chartData"
+          "http://localhost:5000/api/sales/lineChartData"
         );
+        console.log("Response from server:", response.data);
         const data = response.data;
         const categories = data.map((entry) => entry.year);
-        const seriesData = data.map((entry) => entry.sales);
+        const seriesData = data.map((entry) => entry.size);
+
         setChartData((prevState) => ({
           ...prevState,
           options: {
             ...prevState.options,
             xaxis: {
-              ...prevState.options.xaxis,
               categories: categories,
             },
           },
           series: [
             {
-              ...prevState.series[0],
+              name: "size",
               data: seriesData,
             },
           ],
@@ -55,7 +57,7 @@ const LineChartComponent = () => {
 
   return (
     <div className="chart-container">
-      <h1 className="chart-header"> Line Chart</h1>
+      <h1 className="chart-header">Line Chart</h1>
       <div className="chart">
         <Chart
           options={chartData.options}
@@ -68,4 +70,4 @@ const LineChartComponent = () => {
   );
 };
 
-export default LineChartComponent;
+export default ChartComponent;
