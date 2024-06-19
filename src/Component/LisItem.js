@@ -12,7 +12,17 @@ import {
 
 const ListItem = ({ list }) => {
   const [newItem, setNewItem] = useState("");
+  const [items, setItems] = useState([]);
   const dispatch = useDispatch();
+
+  // Debounce function to limit the rate of function calls
+  const debounce = useCallback((func, delay) => {
+    let timer;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => func(...args), delay);
+    };
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -26,17 +36,38 @@ const ListItem = ({ list }) => {
   }, [dispatch]);
 
   useEffect(() => {
+    setItems(list.items || []);
+  }, [list.items]);
+
+  useEffect(() => {
     const pollingInterval = setInterval(fetchData, 5000);
     return () => clearInterval(pollingInterval);
   }, [fetchData]);
 
+  const debouncedUpdateListItem = useCallback(
+    debounce(async (index, newTitle) => {
+      try {
+        const updatedItems = [...items];
+        updatedItems[index] = { ...updatedItems[index], title: newTitle };
+        const response = await axios.put(
+          `http://localhost:5000/api/additionalLists/updateAdditionalList/${list.id}`,
+          { items: updatedItems }
+        );
+        console.log("Server response:", response.data);
+        dispatch(
+          updateToDoItem({ listId: list.id, itemIndex: index, newTitle })
+        );
+      } catch (error) {
+        console.error("Error updating item in list:", error);
+      }
+    }, 500),
+    [items, list.id, dispatch, debounce]
+  );
+
   const handleAddNewListItem = async () => {
     try {
       if (!newItem.trim()) return;
-      const updatedItems = [
-        ...(Array.isArray(list.items) ? list.items : []),
-        { title: newItem },
-      ];
+      const updatedItems = [...items, { title: newItem }];
       const response = await axios.put(
         `http://localhost:5000/api/additionalLists/updateAdditionalList/${list.id}`,
         { items: updatedItems }
@@ -51,38 +82,29 @@ const ListItem = ({ list }) => {
 
   const handleDeleteNewListItem = async (itemIndex) => {
     try {
-      const updatedItems = (Array.isArray(list.items) ? list.items : []).filter(
-        (_, index) => index !== itemIndex
-      );
+      const updatedItems = items.filter((_, index) => index !== itemIndex);
       const response = await axios.put(
         `http://localhost:5000/api/additionalLists/updateAdditionalList/${list.id}`,
         { items: updatedItems }
       );
       console.log("Server response:", response.data);
       dispatch(deleteToDoItem({ listId: list.id, itemIndex }));
-      fetchData();
     } catch (error) {
       console.error("Error deleting item from list:", error);
     }
   };
 
-  const handleUpdateListItem = async (itemIndex, newTitle) => {
-    try {
-      const updatedItems = (Array.isArray(list.items) ? list.items : []).map(
-        (item, index) =>
-          index === itemIndex ? { ...item, title: newTitle } : item
-      );
-      const response = await axios.put(
-        `http://localhost:5000/api/additionalLists/updateAdditionalList/${list.id}`,
-        { items: updatedItems }
-      );
-      console.log("Server response:", response.data);
-      dispatch(updateToDoItem({ listId: list.id, itemIndex, newTitle }));
-      fetchData();
-    } catch (error) {
-      console.error("Error updating item in list:", error);
-    }
-  };
+  const handleUpdateListItem = useCallback(
+    (index, newTitle) => {
+      setItems((prevItems) => {
+        const updatedItems = [...prevItems];
+        updatedItems[index] = { ...updatedItems[index], title: newTitle };
+        return updatedItems;
+      });
+      debouncedUpdateListItem(index, newTitle);
+    },
+    [debouncedUpdateListItem]
+  );
 
   // Log list to verify its structure
   useEffect(() => {
@@ -103,7 +125,7 @@ const ListItem = ({ list }) => {
         </Button>
       </InputGroup>
       <div className="additional-list-items">
-        {(Array.isArray(list.items) ? list.items : []).map((item, index) => (
+        {items.map((item, index) => (
           <div key={index} className="additional-item">
             <textarea
               value={item.title}
