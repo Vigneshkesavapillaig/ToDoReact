@@ -36,7 +36,10 @@ const ListItem = ({ list }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    setItems(list.items || []);
+    // Ensure list.items is an array before setting items state
+    if (Array.isArray(list.items)) {
+      setItems(list.items);
+    }
   }, [list.items]);
 
   useEffect(() => {
